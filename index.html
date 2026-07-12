@@ -61,12 +61,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         h1 {
-            font-size: 18px;
+            font-size: 16px;
             text-transform: uppercase;
             color: #fff;
+        }
+        @media (min-width: 480px) {
+            h1 { font-size: 18px; }
         }
 
         .btn-manage {
@@ -78,6 +82,7 @@
             font-size: 11px;
             text-transform: uppercase;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .btn-manage:hover {
             background: var(--card-header-bg);
@@ -93,6 +98,7 @@
         }
         .manage-panel.active { display: block; }
         
+        /* Мобильно-адаптивная сетка секций настроек профиля */
         .manage-sections-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -100,8 +106,10 @@
         }
         @media (min-width: 768px) {
             .manage-sections-grid { grid-template-columns: 1.2fr 1.1fr; }
+            .stock-section-wrapper { border-left: 1px solid var(--border-color); padding-left: 15px; }
         }
 
+        /* Крупная вертикальная карусель выбора имплантов */
         .manage-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -120,30 +128,35 @@
         .implant-toggle-btn {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: #040609;
             border: 1px solid var(--border-color);
-            padding: 6px;
+            padding: 8px;
             cursor: pointer;
-            height: 52px;
+            min-height: 54px;
+            height: auto;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .implant-toggle-btn .btn-icon {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             object-fit: contain;
             filter: brightness(0) invert(1);
             opacity: 0.3;
             transition: opacity 0.2s;
+            flex-shrink: 0;
         }
         .implant-toggle-btn .btn-text {
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
             color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
+            word-break: break-word; /* Позволяет переносить длинные слова */
             transition: color 0.2s;
+        }
+        @media (min-width: 360px) {
+            .implant-toggle-btn .btn-text { font-size: 10px; }
+            .implant-toggle-btn .btn-icon { width: 30px; height: 30px; }
         }
         .implant-toggle-btn.active {
             border-color: var(--accent-color);
@@ -152,6 +165,7 @@
         .implant-toggle-btn.active .btn-icon { opacity: 0.9; }
         .implant-toggle-btn.active .btn-text { color: #fff; }
 
+        /* Полноразмерная сетка склада */
         .stock-inputs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -165,10 +179,12 @@
             background: #040609;
             border: 1px solid var(--border-color);
             padding-left: 6px;
+            width: 100%;
         }
         .stock-field-wrapper input {
             border: none !important;
-            padding: 10px 10px 10px 4px;
+            padding: 10px;
+            width: 100%;
         }
         .stock-icon {
             width: 24px;
@@ -408,7 +424,7 @@
             gap: 10px;
         }
 
-        /* Общая жесткая сетка для идеального выравнивания колонок */
+        /* Сетка таблицы расчетов */
         .matrix-table-layout {
             display: grid;
             grid-template-columns: 1.3fr 1.1fr 1fr;
@@ -430,7 +446,6 @@
         }
         .res-name { font-size: 11px; text-transform: uppercase; }
         
-        /* Центральный блок: Индикатор -> Склад -> Разделитель -> Игнор */
         .res-stock-management {
             display: flex;
             align-items: center;
@@ -439,7 +454,6 @@
             height: 100%;
         }
         
-        /* Бирюзовая неоновая палочка (минус) */
         .neon-divider {
             width: 10px;
             height: 2px;
@@ -456,13 +470,13 @@
         .res-substock { 
             font-size: 12px; 
             font-weight: bold;
-            color: var(--accent-color); /* По умолчанию бирюзовый */
+            color: var(--accent-color);
             transition: color 0.2s;
             min-width: 25px;
             text-align: right;
         }
         .res-substock.off {
-            color: var(--text-muted); /* Гаснет в серый при игноре */
+            color: var(--text-muted);
         }
 
         .text-separator {
@@ -481,7 +495,6 @@
             accent-color: var(--accent-red);
         }
 
-        /* Выделенная колонка закупки */
         .res-count { 
             font-weight: bold; 
             font-size: 14px; 
@@ -521,13 +534,14 @@
         <button class="btn-manage" onclick="toggleManagePanel()">Настройка профиля</button>
     </header>
 
+    <!-- ПАНЕЛЬ: НАСТРОЙКА ПРОФИЛЯ -->
     <div id="manage-panel" class="manage-panel">
         <div class="manage-sections-grid">
             <div>
                 <label>Выберите установленные импланты:</label>
                 <div class="manage-grid" id="manage-buttons-container"></div>
             </div>
-            <div style="border-left: 1px solid var(--border-color); padding-left: 15px;">
+            <div class="stock-section-wrapper">
                 <label>Ваш склад (Компиляторы в наличии):</label>
                 <div class="stock-inputs-grid">
                     <div class="form-group">
@@ -958,7 +972,7 @@
             });
 
             function snapVertical() {
-                const itemHeight = 52 + 10;
+                const itemHeight = 54 + 10;
                 const currentScroll = grid.scrollTop;
                 const nearestIndex = Math.round(currentScroll / itemHeight);
                 grid.scrollTo({ top: nearestIndex * itemHeight, behavior: 'smooth' });
@@ -1145,7 +1159,6 @@
             data.ignoreStock.purple = document.getElementById('ignore-purple').checked;
             data.ignoreStock.orange = document.getElementById('ignore-orange').checked;
 
-            // Управление состояниями индикатора и цвета цифр
             document.getElementById('neon-div-green').className = data.ignoreStock.green ? "neon-divider off" : "neon-divider";
             document.getElementById('stock-label-green').className = data.ignoreStock.green ? "res-substock off" : "res-substock";
 

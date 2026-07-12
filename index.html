@@ -98,7 +98,6 @@
         }
         .manage-panel.active { display: block; }
         
-        /* Мобильно-адаптивная сетка секций настроек профиля */
         .manage-sections-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -109,7 +108,6 @@
             .stock-section-wrapper { border-left: 1px solid var(--border-color); padding-left: 15px; }
         }
 
-        /* Крупная вертикальная карусель выбора имплантов */
         .manage-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -122,9 +120,8 @@
             cursor: grab;
             will-change: transform;
         }
-        .manage-grid:active {
-            cursor: grabbing;
-        }
+        .manage-grid:active { cursor: grabbing; }
+
         .implant-toggle-btn {
             display: flex;
             align-items: center;
@@ -151,7 +148,7 @@
             text-transform: uppercase;
             color: var(--text-muted);
             line-height: 1.2;
-            word-break: break-word; /* Позволяет переносить длинные слова */
+            word-break: break-word;
             transition: color 0.2s;
         }
         @media (min-width: 360px) {
@@ -165,7 +162,6 @@
         .implant-toggle-btn.active .btn-icon { opacity: 0.9; }
         .implant-toggle-btn.active .btn-text { color: #fff; }
 
-        /* Полноразмерная сетка склада */
         .stock-inputs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -210,13 +206,12 @@
             touch-action: pan-y;
             will-change: transform;
         }
-        .carousel-container:active {
-            cursor: grabbing;
-        }
+        .carousel-container:active { cursor: grabbing; }
 
-        /* Картридж (Пропорция 1:1.8) */
+        /* Картридж: Адаптивный расчет на ровно 3 штуки в ряд для мобилок */
         .implant-cartridge {
-            flex: 0 0 115px;
+            flex: 0 0 calc((100% - 30px) / 3);
+            max-width: 125px; /* Лимит для больших экранов */
             height: 215px;
             background: #080c12;
             border: 1px solid #141f2e;
@@ -225,8 +220,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 5px;
+            padding: 8px 4px;
             transition: outline 0.15s, box-shadow 0.15s;
+        }
+        @media (min-width: 768px) {
+            .implant-cartridge { flex: 0 0 115px; }
         }
         .implant-cartridge.active {
             outline: 2px solid var(--accent-color);
@@ -234,8 +232,8 @@
         }
 
         .cartridge-chip {
-            width: 103px;
-            height: 152px;
+            width: 95%;
+            height: 145px;
             position: relative;
             display: flex;
             align-items: center;
@@ -252,8 +250,9 @@
         }
 
         .cartridge-icon {
-            width: 78px;
-            height: 78px;
+            width: 85%;
+            height: auto;
+            max-height: 78px;
             object-fit: contain;
             filter: brightness(0) invert(1);
             z-index: 2;
@@ -261,7 +260,7 @@
         }
 
         .cartridge-name {
-            font-size: 9px;
+            font-size: 8px;
             text-transform: uppercase;
             text-align: center;
             color: var(--text-main);
@@ -271,19 +270,21 @@
             text-overflow: ellipsis;
             padding: 0 2px;
         }
+        @media (min-width: 360px) { .cartridge-name { font-size: 9px; } }
+
         .cartridge-lvl {
             font-size: 9px;
             font-weight: bold;
             color: #fff;
             background: rgba(4, 6, 9, 0.85);
-            padding: 2px 8px;
+            padding: 2px 6px;
             letter-spacing: 0.5px;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
         /* Интерактивная шкала контактов */
         .cartridge-pins-scale {
-            width: 95px;
+            width: 90%;
             height: 8px;
             display: flex;
             gap: 2px;
@@ -297,40 +298,15 @@
             transition: background 0.3s, box-shadow 0.3s;
         }
 
-        .scale-segment.active-green {
-            background: var(--rarity-green-glow);
-            box-shadow: 0 0 6px var(--rarity-green-glow);
-        }
-        .scale-segment.active-blue {
-            background: var(--rarity-blue-glow);
-            box-shadow: 0 0 6px var(--rarity-blue-glow);
-        }
-        .scale-segment.active-purple {
-            background: var(--rarity-purple-glow);
-            box-shadow: 0 0 6px var(--rarity-purple-glow);
-        }
-        .scale-segment.active-orange {
-            background: var(--rarity-orange-glow);
-            box-shadow: 0 0 6px var(--rarity-orange-glow);
-        }
+        .scale-segment.active-green { background: var(--rarity-green-glow); box-shadow: 0 0 6px var(--rarity-green-glow); }
+        .scale-segment.active-blue { background: var(--rarity-blue-glow); box-shadow: 0 0 6px var(--rarity-blue-glow); }
+        .scale-segment.active-purple { background: var(--rarity-purple-glow); box-shadow: 0 0 6px var(--rarity-purple-glow); }
+        .scale-segment.active-orange { background: var(--rarity-orange-glow); box-shadow: 0 0 6px var(--rarity-orange-glow); }
 
-        /* Градиенты чипа */
-        .chip-green { 
-            background: radial-gradient(circle at center, var(--rarity-green) 15%, #030508 100%);
-            box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.25);
-        }
-        .chip-blue { 
-            background: radial-gradient(circle at center, var(--rarity-blue) 15%, #030508 100%);
-            box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.25);
-        }
-        .chip-purple { 
-            background: radial-gradient(circle at center, var(--rarity-purple) 15%, #030508 100%);
-            box-shadow: inset 0 0 20px rgba(179, 136, 255, 0.25);
-        }
-        .chip-orange { 
-            background: radial-gradient(circle at center, var(--rarity-orange) 15%, #030508 100%);
-            box-shadow: inset 0 0 20px rgba(255, 145, 0, 0.25);
-        }
+        .chip-green { background: radial-gradient(circle at center, var(--rarity-green) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.25); }
+        .chip-blue { background: radial-gradient(circle at center, var(--rarity-blue) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.25); }
+        .chip-purple { background: radial-gradient(circle at center, var(--rarity-purple) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(179, 136, 255, 0.25); }
+        .chip-orange { background: radial-gradient(circle at center, var(--rarity-orange) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(255, 145, 0, 0.25); }
 
         /* Вкладки */
         .tabs-nav {
@@ -414,9 +390,7 @@
             -webkit-appearance: none;
             margin: 0;
         }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        input[type=number] { -moz-appearance: textfield; }
 
         .split-inputs {
             display: grid;
@@ -424,7 +398,6 @@
             gap: 10px;
         }
 
-        /* Сетка таблицы расчетов */
         .matrix-table-layout {
             display: grid;
             grid-template-columns: 1.3fr 1.1fr 1fr;
@@ -475,9 +448,7 @@
             min-width: 25px;
             text-align: right;
         }
-        .res-substock.off {
-            color: var(--text-muted);
-        }
+        .res-substock.off { color: var(--text-muted); }
 
         .text-separator {
             color: var(--border-color);
@@ -491,9 +462,7 @@
             accent-color: var(--accent-color);
             transition: accent-color 0.2s;
         }
-        .ignore-stock-cb:checked {
-            accent-color: var(--accent-red);
-        }
+        .ignore-stock-cb:checked { accent-color: var(--accent-red); }
 
         .res-count { 
             font-weight: bold; 
@@ -534,7 +503,6 @@
         <button class="btn-manage" onclick="toggleManagePanel()">Настройка профиля</button>
     </header>
 
-    <!-- ПАНЕЛЬ: НАСТРОЙКА ПРОФИЛЯ -->
     <div id="manage-panel" class="manage-panel">
         <div class="manage-sections-grid">
             <div>
@@ -937,11 +905,10 @@
             function snapToNearest() {
                 const cartridges = slider.querySelectorAll('.implant-cartridge');
                 if (cartridges.length === 0) return;
-                const itemWidth = 115 + 15; 
+                const itemWidth = slider.querySelector('.implant-cartridge').offsetWidth + 15; 
                 const currentScroll = slider.scrollLeft;
                 const nearestIndex = Math.round(currentScroll / itemWidth);
-                const targetScroll = nearestIndex * itemWidth;
-                slider.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                slider.scrollTo({ left: nearestIndex * itemWidth, behavior: 'smooth' });
             }
         }
 

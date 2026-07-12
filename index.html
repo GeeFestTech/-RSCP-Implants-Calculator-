@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EVE Echoes: Implant Market Matrix</title>
+    <style>
+        @font-face {
+            font-family: 'Shentox Game';
+            src: url('Shentox-Regular.ttf') format('truetype');
+            font-weight: normal; 
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #06090d;
+            --card-bg: #0c1118;
+            --card-header-bg: #121b26;
+            --border-color: #1a2533;
+            --text-main: #cbd5e1;
+            --text-muted: #64748b;
+            --accent-color: #00e5ff;
+            --accent-green: #00e676;
+            --accent-red: #ff3d00;
+            --tab-bg: #090e14;
+            
+            /* Цвета картриджей */
+            --rarity-green: #143527;
+            --rarity-green-glow: #00e676;
+            --rarity-blue: #112740;
+            --rarity-blue-glow: #2196f3;
+            --rarity-purple: #241442;
+            --rarity-purple-glow: #b388ff;
+            --rarity-orange: #3d2011;
+            --rarity-orange-glow: #ff9100;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border-radius: 0px !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Shentox Game', 'Segoe UI', sans-serif;
+            letter-spacing: 0.5px;
+            padding: 10px;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 5px auto 10px auto;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 18px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        .btn-manage {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            font-family: 'Shentox Game', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-manage:hover {
+            background: var(--card-header-bg);
+        }
+
+        .manage-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            max-width: 1200px;
+            margin: 0 auto 15px auto;
+            padding: 15px;
+        }
+        .manage-panel.active { display: block; }
+        
+        .manage-sections-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 768px) {
+            .manage-sections-grid { grid-template-columns: 1.2fr 1.1fr; }
+        }
+
+        .manage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 310px;
+            overflow-y: hidden;
+            padding-bottom: 10px;
+            touch-action: pan-x;
+            cursor: grab;
+            will-change: transform;
+        }
+        .manage-grid:active {
+            cursor: grabbing;
+        }
+        .implant-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #040609;
+            border: 1px solid var(--border-color);
+            padding: 6px;
+            cursor: pointer;
+            height: 52px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .implant-toggle-btn .btn-icon {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+        .implant-toggle-btn .btn-text {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s;
+        }
+        .implant-toggle-btn.active {
+            border-color: var(--accent-color);
+            box-shadow: inset 0 0 8px rgba(0, 229, 255, 0.15);
+        }
+        .implant-toggle-btn.active .btn-icon { opacity: 0.9; }
+        .implant-toggle-btn.active .btn-text { color: #fff; }
+
+        .stock-inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .stock-field-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #040609;
+            border: 1px solid var(--border-color);
+            padding-left: 6px;
+        }
+        .stock-field-wrapper input {
+            border: none !important;
+            padding: 10px 10px 10px 4px;
+        }
+        .stock-icon {
+            width: 24px;
+            height: 24px;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        .carousel-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel-container {
+            display: flex;
+            gap: 15px;
+            padding: 10px 5px 20px 5px;
+            cursor: grab;
+            overflow-x: hidden;
+            touch-action: pan-y;
+            will-change: transform;
+        }
+        .carousel-container:active {
+            cursor: grabbing;
+        }
+
+        /* Картридж (Пропорция 1:1.8) */
+        .implant-cartridge {
+            flex: 0 0 115px;
+            height: 215px;
+            background: #080c12;
+            border: 1px solid #141f2e;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 5px;
+            transition: outline 0.15s, box-shadow 0.15s;
+        }
+        .implant-cartridge.active {
+            outline: 2px solid var(--accent-color);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+        }
+
+        .cartridge-chip {
+            width: 103px;
+            height: 152px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.03);
+            overflow: hidden;
+        }
+        .cartridge-chip::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+            pointer-events: none;
+        }
+
+        .cartridge-icon {
+            width: 78px;
+            height: 78px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .cartridge-name {
+            font-size: 9px;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--text-main);
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+        .cartridge-lvl {
+            font-size: 9px;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(4, 6, 9, 0.85);
+            padding: 2px 8px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Интерактивная шкала контактов */
+        .cartridge-pins-scale {
+            width: 95px;
+            height: 8px;
+            display: flex;
+            gap: 2px;
+            padding: 1px 0;
+            background: #040609;
+            border-top: 1px solid #1a2533;
+        }
+        .scale-segment {
+            flex: 1;
+            background: #181f2a;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .scale-segment.active-green {
+            background: var(--rarity-green-glow);
+            box-shadow: 0 0 6px var(--rarity-green-glow);
+        }
+        .scale-segment.active-blue {
+            background: var(--rarity-blue-glow);
+            box-shadow: 0 0 6px var(--rarity-blue-glow);
+        }
+        .scale-segment.active-purple {
+            background: var(--rarity-purple-glow);
+            box-shadow: 0 0 6px var(--rarity-purple-glow);
+        }
+        .scale-segment.active-orange {
+            background: var(--rarity-orange-glow);
+            box-shadow: 0 0 6px var(--rarity-orange-glow);
+        }
+
+        /* Градиенты чипа */
+        .chip-green { 
+            background: radial-gradient(circle at center, var(--rarity-green) 15%, #030508 100%);
+            box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.25);
+        }
+        .chip-blue { 
+            background: radial-gradient(circle at center, var(--rarity-blue) 15%, #030508 100%);
+            box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.25);
+        }
+        .chip-purple { 
+            background: radial-gradient(circle at center, var(--rarity-purple) 15%, #030508 100%);
+            box-shadow: inset 0 0 20px rgba(179, 136, 255, 0.25);
+        }
+        .chip-orange { 
+            background: radial-gradient(circle at center, var(--rarity-orange) 15%, #030508 100%);
+            box-shadow: inset 0 0 20px rgba(255, 145, 0, 0.25);
+        }
+
+        /* Вкладки */
+        .tabs-nav {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto -1px auto;
+        }
+        .tab-btn {
+            flex: 1;
+            background: var(--tab-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 5px;
+            cursor: pointer;
+            font-family: 'Shentox Game', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--card-bg);
+            border-top: 2px solid var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+        }
+        .tab-content.active { display: block; }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        @media (min-width: 768px) {
+            .grid-layout { grid-template-columns: 1.2fr 1fr; }
+        }
+
+        .panel-section {
+            border: 1px solid var(--border-color);
+            background: rgba(4, 6, 9, 0.3);
+        }
+        .panel-header {
+            background: var(--card-header-bg);
+            padding: 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .panel-body { padding: 15px; }
+
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            background: #040609;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            font-family: 'Shentox Game', sans-serif;
+            font-size: 13px;
+            outline: none;
+        }
+        select:focus, input[type="number"]:focus { border-color: var(--accent-color); }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .split-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Общая жесткая сетка для идеального выравнивания колонок */
+        .matrix-table-layout {
+            display: grid;
+            grid-template-columns: 1.3fr 1.1fr 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .res-row {
+            padding: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .res-info { display: flex; align-items: center; gap: 8px; padding: 10px 0; }
+        .res-icon {
+            width: 28px;
+            height: 28px;
+            background: #040609;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .res-name { font-size: 11px; text-transform: uppercase; }
+        
+        /* Центральный блок: Индикатор -> Склад -> Разделитель -> Игнор */
+        .res-stock-management {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 100%;
+        }
+        
+        /* Бирюзовая неоновая палочка (минус) */
+        .neon-divider {
+            width: 10px;
+            height: 2px;
+            background: var(--accent-color);
+            box-shadow: 0 0 6px var(--accent-color);
+            flex-shrink: 0;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .neon-divider.off {
+            background: #1e293b;
+            box-shadow: none;
+        }
+
+        .res-substock { 
+            font-size: 12px; 
+            font-weight: bold;
+            color: var(--accent-color); /* По умолчанию бирюзовый */
+            transition: color 0.2s;
+            min-width: 25px;
+            text-align: right;
+        }
+        .res-substock.off {
+            color: var(--text-muted); /* Гаснет в серый при игноре */
+        }
+
+        .text-separator {
+            color: var(--border-color);
+            font-size: 11px;
+        }
+
+        .ignore-stock-cb {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+            transition: accent-color 0.2s;
+        }
+        .ignore-stock-cb:checked {
+            accent-color: var(--accent-red);
+        }
+
+        /* Выделенная колонка закупки */
+        .res-count { 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-align: right; 
+            background: rgba(255, 255, 255, 0.03); 
+            height: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; 
+            padding-right: 12px;
+        }
+
+        .total-box {
+            background: #040609;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--accent-color);
+        }
+        .total-isk { font-size: 16px; color: var(--accent-color); font-weight: bold; }
+
+        .c-green { color: var(--rarity-green-glow); }
+        .c-blue { color: var(--rarity-blue-glow); }
+        .c-purple { color: var(--rarity-purple-glow); }
+        .c-orange { color: var(--rarity-orange-glow); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>EVE Echoes: Implant Matrix</h1>
+        </div>
+        <button class="btn-manage" onclick="toggleManagePanel()">Настройка профиля</button>
+    </header>
+
+    <div id="manage-panel" class="manage-panel">
+        <div class="manage-sections-grid">
+            <div>
+                <label>Выберите установленные импланты:</label>
+                <div class="manage-grid" id="manage-buttons-container"></div>
+            </div>
+            <div style="border-left: 1px solid var(--border-color); padding-left: 15px;">
+                <label>Ваш склад (Компиляторы в наличии):</label>
+                <div class="stock-inputs-grid">
+                    <div class="form-group">
+                        <label class="c-green">Crawler (Зеленый)</label>
+                        <div class="stock-field-wrapper">
+                            <img src="comp-green.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-green-glow)'">
+                            <input type="number" id="stock-green" value="0" min="0" oninput="updateStockData()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="c-blue">Depth (Синий)</label>
+                        <div class="stock-field-wrapper">
+                            <img src="comp-blue.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-blue-glow)'">
+                            <input type="number" id="stock-blue" value="0" min="0" oninput="updateStockData()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="c-purple">Genesis (Фиолетовый)</label>
+                        <div class="stock-field-wrapper">
+                            <img src="comp-purple.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-purple-glow)'">
+                            <input type="number" id="stock-purple" value="0" min="0" oninput="updateStockData()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="c-orange">Ascension (Оранжевый)</label>
+                        <div class="stock-field-wrapper">
+                            <img src="comp-orange.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-orange-glow)'">
+                            <input type="number" id="stock-orange" value="0" min="0" oninput="updateStockData()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="carousel-wrapper">
+        <div class="carousel-container" id="implant-carousel"></div>
+    </div>
+
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('calc')">Калькулятор импланта</button>
+        <button class="tab-btn" onclick="switchTab('prices')">База цен рынок</button>
+    </div>
+
+    <div id="tab-calc" class="tab-content active">
+        <div class="grid-layout">
+            <div class="panel-section">
+                <div class="panel-header" id="calc-title">Настройка картриджа</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label>Технологический грейд (Лимит ур.)</label>
+                        <select id="imp-quality" onchange="onQualityChange()">
+                            <option value="10">Experimental (Зеленый / 1-10)</option>
+                            <option value="25">Basic (Синий / 1-25)</option>
+                            <option value="40">Standard (Фиолетовый / 1-40)</option>
+                            <option value="45">Advanced (Оранжевый / 1-45)</option>
+                        </select>
+                    </div>
+                    <div class="split-inputs">
+                        <div class="form-group">
+                            <label>Текущий ур.</label>
+                            <input type="number" id="imp-current-lvl" min="1" value="1" oninput="onLvlChange()" onblur="validateLvlBlur()">
+                        </div>
+                        <div class="form-group">
+                            <label>Целевой ур.</label>
+                            <input type="number" id="imp-target-lvl" min="1" value="10" oninput="onLvlChange()" onblur="validateLvlBlur()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label id="label-current-exp">Текущий опыт на 1 уровне</label>
+                        <input type="number" id="imp-current-exp" min="0" value="0" step="100" oninput="onExpChange()" onblur="validateExpBlur()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header matrix-table-layout" style="font-size:10px;">
+                    <span>Ресурс</span>
+                    <span style="text-align: center; color: var(--text-muted);">На складе &nbsp;|&nbsp; Игнор</span>
+                    <span style="text-align: right; padding-right: 12px;">К закупке</span>
+                </div>
+                <div class="panel-body" style="padding: 0 15px;">
+                    <div class="res-row matrix-table-layout">
+                        <div class="res-info">
+                            <img src="comp-green.png" class="res-icon" onerror="this.style.backgroundColor='var(--rarity-green-glow)'">
+                            <span class="res-name c-green">Crawler (+100)</span>
+                        </div>
+                        <div class="res-stock-management">
+                            <div id="neon-div-green" class="neon-divider"></div>
+                            <span id="stock-label-green" class="res-substock">0</span>
+                            <span class="text-separator">|</span>
+                            <input type="checkbox" id="ignore-green" class="ignore-stock-cb" onchange="runGlobalCalculation()">
+                        </div>
+                        <div class="res-count" id="out-green">0</div>
+                    </div>
+                    <div class="res-row matrix-table-layout">
+                        <div class="res-info">
+                            <img src="comp-blue.png" class="res-icon" onerror="this.style.backgroundColor='var(--rarity-blue-glow)'">
+                            <span class="res-name c-blue">Depth (+500)</span>
+                        </div>
+                        <div class="res-stock-management">
+                            <div id="neon-div-blue" class="neon-divider"></div>
+                            <span id="stock-label-blue" class="res-substock">0</span>
+                            <span class="text-separator">|</span>
+                            <input type="checkbox" id="ignore-blue" class="ignore-stock-cb" onchange="runGlobalCalculation()">
+                        </div>
+                        <div class="res-count" id="out-blue">0</div>
+                    </div>
+                    <div class="res-row matrix-table-layout">
+                        <div class="res-info">
+                            <img src="comp-purple.png" class="res-icon" onerror="this.style.backgroundColor='var(--rarity-purple-glow)'">
+                            <span class="res-name c-purple">Genesis (+1000)</span>
+                        </div>
+                        <div class="res-stock-management">
+                            <div id="neon-div-purple" class="neon-divider"></div>
+                            <span id="stock-label-purple" class="res-substock">0</span>
+                            <span class="text-separator">|</span>
+                            <input type="checkbox" id="ignore-purple" class="ignore-stock-cb" onchange="runGlobalCalculation()">
+                        </div>
+                        <div class="res-count" id="out-purple">0</div>
+                    </div>
+                    <div class="res-row matrix-table-layout">
+                        <div class="res-info">
+                            <img src="comp-orange.png" class="res-icon" onerror="this.style.backgroundColor='var(--rarity-orange-glow)'">
+                            <span class="res-name c-orange">Ascension (+2000)</span>
+                        </div>
+                        <div class="res-stock-management">
+                            <div id="neon-div-orange" class="neon-divider"></div>
+                            <span id="stock-label-orange" class="res-substock">0</span>
+                            <span class="text-separator">|</span>
+                            <input type="checkbox" id="ignore-orange" class="ignore-stock-cb" onchange="runGlobalCalculation()">
+                        </div>
+                        <div class="res-count" id="out-orange">0</div>
+                    </div>
+                    <div class="total-box">
+                        <label style="margin:0; font-size:11px;">Итого к оплате:</label>
+                        <div class="total-isk" id="out-total-isk">0 ISK</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-prices" class="tab-content">
+        <div class="panel-section" style="max-width: 500px; margin: 0 auto;">
+            <div class="panel-header">Рыночные котировки ISK / шт</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="c-green">Цена Crawler (Зеленый)</label>
+                    <input type="number" id="price-green" value="50000" oninput="updatePrices()">
+                </div>
+                <div class="form-group">
+                    <label class="c-blue">Цена Depth (Синий)</label>
+                    <input type="number" id="price-blue" value="250000" oninput="updatePrices()">
+                </div>
+                <div class="form-group">
+                    <label class="c-purple">Цена Genesis (Фиолетовый)</label>
+                    <input type="number" id="price-purple" value="1000000" oninput="updatePrices()">
+                </div>
+                <div class="form-group">
+                    <label class="c-orange">Цена Ascension (Оранжевый)</label>
+                    <input type="number" id="price-orange" value="5000000" oninput="updatePrices()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const activeImplants = [
+            { id: 1, name: "Mining Enhancement", icon: "implant-1.png" },
+            { id: 2, name: "Tactical Defense", icon: "implant-2.png" },
+            { id: 3, name: "Bombard Tactics", icon: "implant-3.png" },
+            { id: 4, name: "Focused Crystal", icon: "implant-4.png" },
+            { id: 5, name: "Barrage Repression", icon: "implant-5.png" },
+            { id: 6, name: "Sniping Technology", icon: "implant-6.png" },
+            { id: 7, name: "Support Projection", icon: "implant-7.png" },
+            { id: 8, name: "Advanced Armor Support", icon: "implant-8.png" },
+            { id: 9, name: "Pulse Crystal", icon: "implant-9.png" },
+            { id: 10, name: "Multifrequency Crystal", icon: "implant-10.png" },
+            { id: 11, name: "Artillery Cover", icon: "implant-11.png" },
+            { id: 12, name: "High Power Coil", icon: "implant-12.png" },
+            { id: 13, name: "Thermal Circulation", icon: "implant-13.png" },
+            { id: 14, name: "Kinetic Burst", icon: "implant-14.png" },
+            { id: 15, name: "Warhead Charge", icon: "implant-15.png" },
+            { id: 16, name: "Tactical Missiles", icon: "implant-16.png" },
+            { id: 17, name: "Automatic Defense", icon: "implant-17.png" },
+            { id: 18, name: "Aerospace Tactics", icon: "implant-18.png" },
+            { id: 19, name: "Remote Shield", icon: "implant-19.png" }
+        ];
+
+        const expMatrix = [
+            0, 950, 1900, 2900, 4000, 7000, 8500, 10000, 11000, 13000,
+            10000, 12000, 14000, 16000, 18000, 27000, 31000, 34000, 37000, 41000, 62000, 67000, 72000, 78000, 84000,
+            120000, 130000, 140000, 150000, 160000, 230000, 250000, 260000, 270000, 290000, 410000, 430000, 450000, 470000, 490000,
+            690000, 720000, 750000, 780000, 810000
+        ];
+
+        const compPower = { green: 100, blue: 500, purple: 1000, orange: 2000 };
+        let userProfile = {};
+        let marketPrices = { green: 50000, blue: 250000, purple: 1000000, orange: 5000000 };
+        let userStock = { green: 0, blue: 0, purple: 0, orange: 0 };
+        let selectedId = 1;
+
+        window.onload = function() {
+            loadStorage();
+            buildProfileButtons();
+            buildCarousel();
+            selectImplant(selectedId);
+            initLiveScroll();
+            initVerticalProfileScroll();
+        };
+
+        function loadStorage() {
+            const profile = localStorage.getItem('ee_matrix_profile');
+            const prices = localStorage.getItem('ee_matrix_prices');
+            const stock = localStorage.getItem('ee_matrix_stock');
+            const sel = localStorage.getItem('ee_matrix_selected');
+
+            if (sel) selectedId = parseInt(sel);
+            if (prices) {
+                marketPrices = JSON.parse(prices);
+                document.getElementById('price-green').value = marketPrices.green;
+                document.getElementById('price-blue').value = marketPrices.blue;
+                document.getElementById('price-purple').value = marketPrices.purple;
+                document.getElementById('price-orange').value = marketPrices.orange;
+            }
+
+            if (stock) {
+                userStock = JSON.parse(stock);
+                document.getElementById('stock-green').value = userStock.green;
+                document.getElementById('stock-blue').value = userStock.blue;
+                document.getElementById('stock-purple').value = userStock.purple;
+                document.getElementById('stock-orange').value = userStock.orange;
+            }
+
+            if (profile) {
+                userProfile = JSON.parse(profile);
+                activeImplants.forEach(imp => {
+                    if (!userProfile[imp.id]) {
+                        userProfile[imp.id] = { quality: "10", currentLvl: 1, targetLvl: 10, currentExp: 0, visible: true, ignoreStock: {green:false, blue:false, purple:false, orange:false} };
+                    }
+                    if(!userProfile[imp.id].ignoreStock) {
+                        userProfile[imp.id].ignoreStock = {green:false, blue:false, purple:false, orange:false};
+                    }
+                });
+            } else {
+                activeImplants.forEach(imp => {
+                    userProfile[imp.id] = { quality: "10", currentLvl: 1, targetLvl: 10, currentExp: 0, visible: true, ignoreStock: {green:false, blue:false, purple:false, orange:false} };
+                });
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('ee_matrix_profile', JSON.stringify(userProfile));
+            localStorage.setItem('ee_matrix_prices', JSON.stringify(marketPrices));
+            localStorage.setItem('ee_matrix_stock', JSON.stringify(userStock));
+            localStorage.setItem('ee_matrix_selected', selectedId);
+        }
+
+        function buildProfileButtons() {
+            const container = document.getElementById('manage-buttons-container');
+            container.innerHTML = '';
+            activeImplants.forEach(imp => {
+                const btn = document.createElement('div');
+                btn.className = `implant-toggle-btn ${userProfile[imp.id].visible ? 'active' : ''}`;
+                btn.id = `prof-btn-${imp.id}`;
+                btn.innerHTML = `
+                    <img src="${imp.icon}" class="btn-icon" onerror="this.style.opacity='0.15';">
+                    <span class="btn-text">${imp.name}</span>
+                `;
+                btn.addEventListener('pointerup', (e) => {
+                    if (!container.dataset.dragged || container.dataset.dragged === "false") {
+                        toggleImplantVisibility(imp.id);
+                    }
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function toggleImplantVisibility(id) {
+            userProfile[id].visible = !userProfile[id].visible;
+            const btn = document.getElementById(`prof-btn-${id}`);
+            if(userProfile[id].visible) btn.classList.add('active');
+            else btn.classList.remove('active');
+
+            buildCarousel();
+            if (selectedId === id && !userProfile[id].visible) {
+                const firstVisible = activeImplants.find(x => userProfile[x.id].visible);
+                if (firstVisible) selectImplant(firstVisible.id);
+            } else {
+                runGlobalCalculation();
+            }
+        }
+
+        function toggleManagePanel() {
+            document.getElementById('manage-panel').classList.toggle('active');
+        }
+
+        function updateStockData() {
+            userStock.green = Math.max(0, parseInt(document.getElementById('stock-green').value) || 0);
+            userStock.blue = Math.max(0, parseInt(document.getElementById('stock-blue').value) || 0);
+            userStock.purple = Math.max(0, parseInt(document.getElementById('stock-purple').value) || 0);
+            userStock.orange = Math.max(0, parseInt(document.getElementById('stock-orange').value) || 0);
+            runGlobalCalculation();
+        }
+
+        function generatePinsHTML(quality, currentLvl) {
+            let segmentsCount = 10; let activeCount = 0; let colorWord = "green";
+            if (quality === "10") { segmentsCount = 10; activeCount = currentLvl; colorWord = "green"; } 
+            else if (quality === "25") { segmentsCount = 5; activeCount = Math.floor(currentLvl / 5); colorWord = "blue"; } 
+            else if (quality === "40") { segmentsCount = 8; activeCount = Math.floor(currentLvl / 5); colorWord = "purple"; } 
+            else if (quality === "45") { segmentsCount = 9; activeCount = Math.floor(currentLvl / 5); colorWord = "orange"; }
+
+            let html = `<div class="cartridge-pins-scale">`;
+            for (let i = 1; i <= segmentsCount; i++) {
+                let isActive = i <= activeCount ? `active-${colorWord}` : '';
+                html += `<div class="scale-segment ${isActive}"></div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function buildCarousel() {
+            const container = document.getElementById('implant-carousel');
+            container.innerHTML = '';
+
+            activeImplants.forEach(imp => {
+                const data = userProfile[imp.id];
+                if (!data.visible) return;
+
+                const card = document.createElement('div');
+                card.className = `implant-cartridge`;
+                card.id = `card-${imp.id}`;
+                
+                card.addEventListener('pointerup', (e) => {
+                    if (!card.dataset.dragged || card.dataset.dragged === "false") {
+                        selectImplant(imp.id);
+                    }
+                });
+
+                let chipColorClass = getChipColorClass(data.quality);
+                let pinsScaleHTML = generatePinsHTML(data.quality, data.currentLvl);
+
+                card.innerHTML = `
+                    <div class="cartridge-name">${imp.name}</div>
+                    <div class="cartridge-chip ${chipColorClass}">
+                        <img src="${imp.icon}" class="cartridge-icon" onerror="this.style.opacity='0.15';">
+                    </div>
+                    <div class="cartridge-lvl">LVL ${data.currentLvl}</div>
+                    ${pinsScaleHTML}
+                `;
+                container.appendChild(card);
+            });
+            if(document.getElementById(`card-${selectedId}`)) {
+                document.getElementById(`card-${selectedId}`).classList.add('active');
+            }
+        }
+
+        function getChipColorClass(q) {
+            if (q === "10") return "chip-green";
+            if (q === "25") return "chip-blue";
+            if (q === "40") return "chip-purple";
+            return "chip-orange";
+        }
+
+        function initLiveScroll() {
+            const slider = document.getElementById('implant-carousel');
+            let isDown = false; let startX; let scrollLeft; let walk = 0;
+
+            slider.addEventListener('pointerdown', (e) => {
+                isDown = true;
+                slider.classList.add('active');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+                walk = 0;
+                document.querySelectorAll('.implant-cartridge').forEach(c => c.dataset.dragged = "false");
+            });
+
+            slider.addEventListener('pointerleave', () => { if (isDown) { isDown = false; snapToNearest(); } });
+            slider.addEventListener('pointerup', () => { if (isDown) { isDown = false; snapToNearest(); } });
+
+            slider.addEventListener('pointermove', (e) => {
+                if(!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                walk = (x - startX) * 1.4;
+                slider.scrollLeft = scrollLeft - walk;
+                if (Math.abs(walk) > 5) {
+                    document.querySelectorAll('.implant-cartridge').forEach(c => c.dataset.dragged = "true");
+                }
+            });
+
+            function snapToNearest() {
+                const cartridges = slider.querySelectorAll('.implant-cartridge');
+                if (cartridges.length === 0) return;
+                const itemWidth = 115 + 15; 
+                const currentScroll = slider.scrollLeft;
+                const nearestIndex = Math.round(currentScroll / itemWidth);
+                const targetScroll = nearestIndex * itemWidth;
+                slider.scrollTo({ left: targetScroll, behavior: 'smooth' });
+            }
+        }
+
+        function initVerticalProfileScroll() {
+            const grid = document.getElementById('manage-buttons-container');
+            let isDown = false; let startY; let scrollTop; let walk = 0;
+
+            grid.addEventListener('pointerdown', (e) => {
+                isDown = true;
+                startY = e.pageY - grid.offsetTop;
+                scrollTop = grid.scrollTop;
+                walk = 0;
+                grid.dataset.dragged = "false";
+            });
+
+            grid.addEventListener('pointerleave', () => { if (isDown) { isDown = false; snapVertical(); } });
+            grid.addEventListener('pointerup', () => { if (isDown) { isDown = false; snapVertical(); } });
+
+            grid.addEventListener('pointermove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const y = e.pageY - grid.offsetTop;
+                walk = (y - startY) * 1.3;
+                grid.scrollTop = scrollTop - walk;
+                if (Math.abs(walk) > 5) {
+                    grid.dataset.dragged = "true";
+                }
+            });
+
+            function snapVertical() {
+                const itemHeight = 52 + 10;
+                const currentScroll = grid.scrollTop;
+                const nearestIndex = Math.round(currentScroll / itemHeight);
+                grid.scrollTo({ top: nearestIndex * itemHeight, behavior: 'smooth' });
+            }
+        }
+
+        function getExpStep(lvl) {
+            if (lvl <= 10) return 100;
+            if (lvl <= 25) return 500;
+            if (lvl <= 40) return 1000;
+            return 2000;
+        }
+
+        function selectImplant(id) {
+            if(!userProfile[id] || !userProfile[id].visible) {
+                const fallback = activeImplants.find(x => userProfile[x.id].visible);
+                if (!fallback) return; 
+                id = fallback.id;
+            }
+
+            selectedId = id;
+            document.querySelectorAll('.implant-cartridge').forEach(c => c.classList.remove('active'));
+            if(document.getElementById(`card-${id}`)) document.getElementById(`card-${id}`).classList.add('active');
+
+            const imp = activeImplants.find(x => x.id === id);
+            const data = userProfile[id];
+
+            document.getElementById('calc-title').innerText = imp.name;
+            document.getElementById('imp-quality').value = data.quality;
+            document.getElementById('imp-current-lvl').value = data.currentLvl;
+            document.getElementById('imp-target-lvl').value = data.targetLvl;
+            document.getElementById('imp-current-exp').value = data.currentExp;
+
+            document.getElementById('ignore-green').checked = data.ignoreStock.green;
+            document.getElementById('ignore-blue').checked = data.ignoreStock.blue;
+            document.getElementById('ignore-purple').checked = data.ignoreStock.purple;
+            document.getElementById('ignore-orange').checked = data.ignoreStock.orange;
+
+            updateLimits();
+            runGlobalCalculation();
+        }
+
+        function updateLimits() {
+            const maxLvl = parseInt(document.getElementById('imp-quality').value);
+            const curIn = document.getElementById('imp-current-lvl');
+            const tarIn = document.getElementById('imp-target-lvl');
+            const expIn = document.getElementById('imp-current-exp');
+
+            curIn.max = maxLvl; tarIn.max = maxLvl;
+            let cv = curIn.value === "" ? 1 : parseInt(curIn.value);
+            let tv = tarIn.value === "" ? 1 : parseInt(tarIn.value);
+
+            if (cv > maxLvl) cv = maxLvl;
+            if (tv > maxLvl) tv = maxLvl;
+
+            const nextCost = cv < 45 ? expMatrix[cv] : 0;
+            const currentStep = getExpStep(cv);
+
+            document.getElementById('label-current-exp').innerText = `Текущий опыт на ${cv} уровне (0 - ${nextCost.toLocaleString()})`;
+            expIn.max = nextCost;
+            expIn.step = currentStep;
+        }
+
+        function onQualityChange() {
+            userProfile[selectedId].quality = document.getElementById('imp-quality').value;
+            updateLimits();
+            buildCarousel();
+            runGlobalCalculation();
+        }
+
+        function onLvlChange() {
+            const maxLvl = parseInt(document.getElementById('imp-quality').value);
+            const curRaw = document.getElementById('imp-current-lvl').value;
+            const tarRaw = document.getElementById('imp-target-lvl').value;
+
+            let c = curRaw === "" ? 1 : parseInt(curRaw);
+            let t = tarRaw === "" ? 1 : parseInt(tarRaw);
+
+            if (c > maxLvl) c = maxLvl;
+            if (t > maxLvl) t = maxLvl;
+
+            userProfile[selectedId].currentLvl = c;
+            userProfile[selectedId].targetLvl = t;
+            updateLimits();
+
+            const card = document.getElementById(`card-${selectedId}`);
+            if(card && curRaw !== "") {
+                const txt = card.querySelector('.cartridge-lvl');
+                if(txt) txt.innerText = `LVL ${c}`;
+                const oldScale = card.querySelector('.cartridge-pins-scale');
+                if(oldScale) oldScale.remove();
+                card.insertAdjacentHTML('beforeend', generatePinsHTML(userProfile[selectedId].quality, c));
+            }
+            runGlobalCalculation();
+        }
+
+        function onExpChange() {
+            const curLvl = userProfile[selectedId].currentLvl;
+            const nextCost = curLvl < 45 ? expMatrix[curLvl] : 0;
+            const expRaw = document.getElementById('imp-current-exp').value;
+            let exp = expRaw === "" ? 0 : parseInt(expRaw);
+            if (exp > nextCost) exp = nextCost;
+            userProfile[selectedId].currentExp = exp;
+            runGlobalCalculation();
+        }
+
+        function validateLvlBlur() {
+            const maxLvl = parseInt(document.getElementById('imp-quality').value);
+            let curIn = document.getElementById('imp-current-lvl');
+            let tarIn = document.getElementById('imp-target-lvl');
+
+            if (curIn.value === "" || parseInt(curIn.value) < 1) curIn.value = 1;
+            if (tarIn.value === "" || parseInt(tarIn.value) < 1) tarIn.value = 1;
+            if (parseInt(curIn.value) > maxLvl) curIn.value = maxLvl;
+            if (parseInt(tarIn.value) > maxLvl) tarIn.value = maxLvl;
+            if (parseInt(tarIn.value) < parseInt(curIn.value)) tarIn.value = curIn.value;
+
+            userProfile[selectedId].currentLvl = parseInt(curIn.value);
+            userProfile[selectedId].targetLvl = parseInt(tarIn.value);
+
+            validateExpBlur();
+            buildCarousel();
+            runGlobalCalculation();
+        }
+
+        function validateExpBlur() {
+            let expIn = document.getElementById('imp-current-exp');
+            const curLvl = userProfile[selectedId].currentLvl;
+            const nextCost = curLvl < 45 ? expMatrix[curLvl] : 0;
+            const step = getExpStep(curLvl);
+
+            if (expIn.value === "" || parseInt(expIn.value) < 0) expIn.value = 0;
+            let exp = parseInt(expIn.value);
+            exp = Math.round(exp / step) * step;
+            if (exp > nextCost) exp = Math.floor(nextCost / step) * step;
+
+            expIn.value = exp;
+            userProfile[selectedId].currentExp = exp;
+            runGlobalCalculation();
+        }
+
+        function updatePrices() {
+            marketPrices.green = parseFloat(document.getElementById('price-green').value) || 0;
+            marketPrices.blue = parseFloat(document.getElementById('price-blue').value) || 0;
+            marketPrices.purple = parseFloat(document.getElementById('price-purple').value) || 0;
+            marketPrices.orange = parseFloat(document.getElementById('price-orange').value) || 0;
+            runGlobalCalculation();
+        }
+
+        function calcSingle(id) {
+            const data = userProfile[id];
+            let g = 0, b = 0, p = 0, o = 0;
+
+            for (let l = data.currentLvl + 1; l <= data.targetLvl; l++) {
+                const cost = expMatrix[l - 1];
+                if (l <= 10) g += cost;
+                else if (l <= 25) b += cost;
+                else if (l <= 40) p += cost;
+                else if (l <= 45) o += cost;
+            }
+
+            if (data.currentExp > 0 && (data.currentLvl + 1) <= data.targetLvl) {
+                let n = data.currentLvl + 1;
+                if (n <= 10) g = Math.max(0, g - data.currentExp);
+                else if (n <= 25) b = Math.max(0, b - data.currentExp);
+                else if (n <= 40) p = Math.max(0, p - data.currentExp);
+                else if (n <= 45) o = Math.max(0, o - data.currentExp);
+            }
+
+            return {
+                green: Math.ceil(g / compPower.green),
+                blue: Math.ceil(b / compPower.blue),
+                purple: Math.ceil(p / compPower.purple),
+                orange: Math.ceil(o / compPower.orange)
+            };
+        }
+
+        function runGlobalCalculation() {
+            const neededRes = calcSingle(selectedId);
+            const data = userProfile[selectedId];
+
+            data.ignoreStock.green = document.getElementById('ignore-green').checked;
+            data.ignoreStock.blue = document.getElementById('ignore-blue').checked;
+            data.ignoreStock.purple = document.getElementById('ignore-purple').checked;
+            data.ignoreStock.orange = document.getElementById('ignore-orange').checked;
+
+            // Управление состояниями индикатора и цвета цифр
+            document.getElementById('neon-div-green').className = data.ignoreStock.green ? "neon-divider off" : "neon-divider";
+            document.getElementById('stock-label-green').className = data.ignoreStock.green ? "res-substock off" : "res-substock";
+
+            document.getElementById('neon-div-blue').className = data.ignoreStock.blue ? "neon-divider off" : "neon-divider";
+            document.getElementById('stock-label-blue').className = data.ignoreStock.blue ? "res-substock off" : "res-substock";
+
+            document.getElementById('neon-div-purple').className = data.ignoreStock.purple ? "neon-divider off" : "neon-divider";
+            document.getElementById('stock-label-purple').className = data.ignoreStock.purple ? "res-substock off" : "res-substock";
+
+            document.getElementById('neon-div-orange').className = data.ignoreStock.orange ? "neon-divider off" : "neon-divider";
+            document.getElementById('stock-label-orange').className = data.ignoreStock.orange ? "res-substock off" : "res-substock";
+
+            document.getElementById('stock-label-green').innerText = userStock.green.toLocaleString();
+            document.getElementById('stock-label-blue').innerText = userStock.blue.toLocaleString();
+            document.getElementById('stock-label-purple').innerText = userStock.purple.toLocaleString();
+            document.getElementById('stock-label-orange').innerText = userStock.orange.toLocaleString();
+
+            const finalGreen = data.ignoreStock.green ? neededRes.green : Math.max(0, neededRes.green - userStock.green);
+            const finalBlue = data.ignoreStock.blue ? neededRes.blue : Math.max(0, neededRes.blue - userStock.blue);
+            const finalPurple = data.ignoreStock.purple ? neededRes.purple : Math.max(0, neededRes.purple - userStock.purple);
+            const finalOrange = data.ignoreStock.orange ? neededRes.orange : Math.max(0, neededRes.orange - userStock.orange);
+
+            document.getElementById('out-green').innerText = finalGreen.toLocaleString();
+            document.getElementById('out-blue').innerText = finalBlue.toLocaleString();
+            document.getElementById('out-purple').innerText = finalPurple.toLocaleString();
+            document.getElementById('out-orange').innerText = finalOrange.toLocaleString();
+
+            document.getElementById('out-green').className = finalGreen === 0 && neededRes.green > 0 ? "res-count c-green" : "res-count";
+            document.getElementById('out-blue').className = finalBlue === 0 && neededRes.blue > 0 ? "res-count c-blue" : "res-count";
+            document.getElementById('out-purple').className = finalPurple === 0 && neededRes.purple > 0 ? "res-count c-purple" : "res-count";
+            document.getElementById('out-orange').className = finalOrange === 0 && neededRes.orange > 0 ? "res-count c-orange" : "res-count";
+
+            const activeIsk = (finalGreen * marketPrices.green) + 
+                             (finalBlue * marketPrices.blue) + 
+                             (finalPurple * marketPrices.purple) + 
+                             (finalOrange * marketPrices.orange);
+            
+            document.getElementById('out-total-isk').innerText = `${activeIsk.toLocaleString()} ISK`;
+
+            saveStorage();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

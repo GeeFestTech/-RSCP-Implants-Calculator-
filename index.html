@@ -6,7 +6,7 @@
     <title>EVE Echoes: Implant Market Matrix</title>
     <style>
         @font-face {
-            font-family: 'Shentox Game';
+            font-family: 'Shentox';
             src: url('Shentox-Regular.ttf') format('truetype');
             font-weight: normal; 
             font-style: normal;
@@ -46,7 +46,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Shentox Game', 'Segoe UI', sans-serif;
+            font-family: 'Shentox', 'Segoe UI', sans-serif;
             letter-spacing: 0.5px;
             padding: 10px;
             min-height: 100vh;
@@ -81,7 +81,7 @@
             border: 1px solid var(--border-color);
             color: var(--accent-color);
             padding: 6px 12px;
-            font-family: 'Shentox Game', sans-serif;
+            font-family: 'Shentox', sans-serif;
             font-size: 11px;
             text-transform: uppercase;
             cursor: pointer;
@@ -186,6 +186,9 @@
             border: none !important;
             padding: 10px;
             width: 100%;
+            font-family: 'Shentox', sans-serif;
+            color: var(--text-main);
+            background: transparent;
         }
         .stock-icon {
             width: 24px;
@@ -325,7 +328,7 @@
             color: var(--text-muted);
             padding: 10px 5px;
             cursor: pointer;
-            font-family: 'Shentox Game', sans-serif;
+            font-family: 'Shentox', sans-serif;
             font-size: 11px;
             text-transform: uppercase;
         }
@@ -385,7 +388,7 @@
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 10px;
-            font-family: 'Shentox Game', sans-serif;
+            font-family: 'Shentox', sans-serif;
             font-size: 13px;
             outline: none;
         }
@@ -535,7 +538,7 @@
 
     <header>
         <div>
-            <h1>EVE Echoes: Implant Matrix</h1>
+            <h1>EVE Echoes: Implant Market Matrix</h1>
         </div>
         <button class="btn-manage" onclick="toggleManagePanel()">Настройка профиля</button>
     </header>
@@ -944,12 +947,9 @@
                 }
             });
 
-            // Поддержка колёсика мыши для горизонтальной ленты
             slider.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 slider.scrollLeft += e.deltaY * 1.2;
-                
-                // Легкий таймаут для сглаженного выравнивания после остановки колеса
                 clearTimeout(slider.tsnap);
                 slider.tsnap = setTimeout(snapToNearest, 150);
             }, { passive: false });
@@ -991,11 +991,9 @@
                 }
             });
 
-            // Поддержка колёсика мыши для вертикального контейнера кнопок
             grid.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 grid.scrollTop += e.deltaY * 0.8;
-
                 clearTimeout(grid.tsnap);
                 grid.tsnap = setTimeout(snapVertical, 150);
             }, { passive: false });

@@ -24,7 +24,7 @@
             --accent-red: #ff3d00;
             --tab-bg: #090e14;
             
-            /* Р¦РІРµС‚Р° РєР°СЂС‚СЂРёРґР¶РµР№ */
+            /* Цвета картриджей */
             --rarity-green: #143527;
             --rarity-green-glow: #00e676;
             --rarity-blue: #112740;
@@ -51,10 +51,13 @@
             padding: 10px;
             min-height: 100vh;
             user-select: none;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
             max-width: 1200px;
+            width: 100%;
             margin: 5px auto 10px auto;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
@@ -93,6 +96,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto 15px auto;
             padding: 15px;
         }
@@ -108,6 +112,7 @@
             .stock-section-wrapper { border-left: 1px solid var(--border-color); padding-left: 15px; }
         }
 
+        /* Окошко выбора имплантов с прокруткой */
         .manage-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -192,6 +197,7 @@
 
         .carousel-wrapper {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             overflow: hidden;
             position: relative;
@@ -208,10 +214,9 @@
         }
         .carousel-container:active { cursor: grabbing; }
 
-        /* РљР°СЂС‚СЂРёРґР¶: РђРґР°РїС‚РёРІРЅС‹Р№ СЂР°СЃС‡РµС‚ РЅР° СЂРѕРІРЅРѕ 3 С€С‚СѓРєРё РІ СЂСЏРґ РґР»СЏ РјРѕР±РёР»РѕРє */
         .implant-cartridge {
             flex: 0 0 calc((100% - 30px) / 3);
-            max-width: 125px; /* Р›РёРјРёС‚ РґР»СЏ Р±РѕР»СЊС€РёС… СЌРєСЂР°РЅРѕРІ */
+            max-width: 125px;
             height: 215px;
             background: #080c12;
             border: 1px solid #141f2e;
@@ -282,7 +287,6 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* РРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ С€РєР°Р»Р° РєРѕРЅС‚Р°РєС‚РѕРІ */
         .cartridge-pins-scale {
             width: 90%;
             height: 8px;
@@ -308,10 +312,10 @@
         .chip-purple { background: radial-gradient(circle at center, var(--rarity-purple) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(179, 136, 255, 0.25); }
         .chip-orange { background: radial-gradient(circle at center, var(--rarity-orange) 15%, #030508 100%); box-shadow: inset 0 0 20px rgba(255, 145, 0, 0.25); }
 
-        /* Р’РєР»Р°РґРєРё */
         .tabs-nav {
             display: flex;
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto -1px auto;
         }
         .tab-btn {
@@ -335,10 +339,12 @@
         .tab-content {
             display: none;
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             padding: 15px;
+            flex-grow: 1;
         }
         .tab-content.active { display: block; }
 
@@ -492,6 +498,37 @@
         .c-blue { color: var(--rarity-blue-glow); }
         .c-purple { color: var(--rarity-purple-glow); }
         .c-orange { color: var(--rarity-orange-glow); }
+
+        /* Игровой Подвал / Футер */
+        footer {
+            max-width: 1200px;
+            width: 100%;
+            margin: 25px auto 5px auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+        }
+        .footer-legal {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .footer-copyright {
+            font-size: 10px;
+            color: #8492a6;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .footer-nickname {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -500,41 +537,41 @@
         <div>
             <h1>EVE Echoes: Implant Matrix</h1>
         </div>
-        <button class="btn-manage" onclick="toggleManagePanel()">РќР°СЃС‚СЂРѕР№РєР° РїСЂРѕС„РёР»СЏ</button>
+        <button class="btn-manage" onclick="toggleManagePanel()">Настройка профиля</button>
     </header>
 
     <div id="manage-panel" class="manage-panel">
         <div class="manage-sections-grid">
             <div>
-                <label>Р’С‹Р±РµСЂРёС‚Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рµ РёРјРїР»Р°РЅС‚С‹:</label>
+                <label>Выберите установленные импланты:</label>
                 <div class="manage-grid" id="manage-buttons-container"></div>
             </div>
             <div class="stock-section-wrapper">
-                <label>Р’Р°С€ СЃРєР»Р°Рґ (РљРѕРјРїРёР»СЏС‚РѕСЂС‹ РІ РЅР°Р»РёС‡РёРё):</label>
+                <label>Ваш склад (Компиляторы в наличии):</label>
                 <div class="stock-inputs-grid">
                     <div class="form-group">
-                        <label class="c-green">Crawler (Р—РµР»РµРЅС‹Р№)</label>
+                        <label class="c-green">Crawler (Зеленый)</label>
                         <div class="stock-field-wrapper">
                             <img src="comp-green.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-green-glow)'">
                             <input type="number" id="stock-green" value="0" min="0" oninput="updateStockData()">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="c-blue">Depth (РЎРёРЅРёР№)</label>
+                        <label class="c-blue">Depth (Синий)</label>
                         <div class="stock-field-wrapper">
                             <img src="comp-blue.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-blue-glow)'">
                             <input type="number" id="stock-blue" value="0" min="0" oninput="updateStockData()">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="c-purple">Genesis (Р¤РёРѕР»РµС‚РѕРІС‹Р№)</label>
+                        <label class="c-purple">Genesis (Фиолетовый)</label>
                         <div class="stock-field-wrapper">
                             <img src="comp-purple.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-purple-glow)'">
                             <input type="number" id="stock-purple" value="0" min="0" oninput="updateStockData()">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="c-orange">Ascension (РћСЂР°РЅР¶РµРІС‹Р№)</label>
+                        <label class="c-orange">Ascension (Оранжевый)</label>
                         <div class="stock-field-wrapper">
                             <img src="comp-orange.png" class="stock-icon" onerror="this.style.backgroundColor='var(--rarity-orange-glow)'">
                             <input type="number" id="stock-orange" value="0" min="0" oninput="updateStockData()">
@@ -550,36 +587,36 @@
     </div>
 
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('calc')">РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ РёРјРїР»Р°РЅС‚Р°</button>
-        <button class="tab-btn" onclick="switchTab('prices')">Р‘Р°Р·Р° С†РµРЅ СЂС‹РЅРѕРє</button>
+        <button class="tab-btn active" onclick="switchTab('calc')">Калькулятор импланта</button>
+        <button class="tab-btn" onclick="switchTab('prices')">База цен рынок</button>
     </div>
 
     <div id="tab-calc" class="tab-content active">
         <div class="grid-layout">
             <div class="panel-section">
-                <div class="panel-header" id="calc-title">РќР°СЃС‚СЂРѕР№РєР° РєР°СЂС‚СЂРёРґР¶Р°</div>
+                <div class="panel-header" id="calc-title">Настройка картриджа</div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label>РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёР№ РіСЂРµР№Рґ (Р›РёРјРёС‚ СѓСЂ.)</label>
+                        <label>Технологический грейд (Лимит ур.)</label>
                         <select id="imp-quality" onchange="onQualityChange()">
-                            <option value="10">Experimental (Р—РµР»РµРЅС‹Р№ / 1-10)</option>
-                            <option value="25">Basic (РЎРёРЅРёР№ / 1-25)</option>
-                            <option value="40">Standard (Р¤РёРѕР»РµС‚РѕРІС‹Р№ / 1-40)</option>
-                            <option value="45">Advanced (РћСЂР°РЅР¶РµРІС‹Р№ / 1-45)</option>
+                            <option value="10">Experimental (Зеленый / 1-10)</option>
+                            <option value="25">Basic (Синий / 1-25)</option>
+                            <option value="40">Standard (Фиолетовый / 1-40)</option>
+                            <option value="45">Advanced (Оранжевый / 1-45)</option>
                         </select>
                     </div>
                     <div class="split-inputs">
                         <div class="form-group">
-                            <label>РўРµРєСѓС‰РёР№ СѓСЂ.</label>
+                            <label>Текущий ур.</label>
                             <input type="number" id="imp-current-lvl" min="1" value="1" oninput="onLvlChange()" onblur="validateLvlBlur()">
                         </div>
                         <div class="form-group">
-                            <label>Р¦РµР»РµРІРѕР№ СѓСЂ.</label>
+                            <label>Целевой ур.</label>
                             <input type="number" id="imp-target-lvl" min="1" value="10" oninput="onLvlChange()" onblur="validateLvlBlur()">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label id="label-current-exp">РўРµРєСѓС‰РёР№ РѕРїС‹С‚ РЅР° 1 СѓСЂРѕРІРЅРµ</label>
+                        <label id="label-current-exp">Текущий опыт на 1 уровне</label>
                         <input type="number" id="imp-current-exp" min="0" value="0" step="100" oninput="onExpChange()" onblur="validateExpBlur()">
                     </div>
                 </div>
@@ -587,9 +624,9 @@
 
             <div class="panel-section">
                 <div class="panel-header matrix-table-layout" style="font-size:10px;">
-                    <span>Р РµСЃСѓСЂСЃ</span>
-                    <span style="text-align: center; color: var(--text-muted);">РќР° СЃРєР»Р°РґРµ &nbsp;|&nbsp; РРіРЅРѕСЂ</span>
-                    <span style="text-align: right; padding-right: 12px;">Рљ Р·Р°РєСѓРїРєРµ</span>
+                    <span>Ресурс</span>
+                    <span style="text-align: center; color: var(--text-muted);">На складе &nbsp;|&nbsp; Игнор</span>
+                    <span style="text-align: right; padding-right: 12px;">К закупке</span>
                 </div>
                 <div class="panel-body" style="padding: 0 15px;">
                     <div class="res-row matrix-table-layout">
@@ -645,7 +682,7 @@
                         <div class="res-count" id="out-orange">0</div>
                     </div>
                     <div class="total-box">
-                        <label style="margin:0; font-size:11px;">РС‚РѕРіРѕ Рє РѕРїР»Р°С‚Рµ:</label>
+                        <label style="margin:0; font-size:11px;">Итого к оплате:</label>
                         <div class="total-isk" id="out-total-isk">0 ISK</div>
                     </div>
                 </div>
@@ -655,27 +692,32 @@
 
     <div id="tab-prices" class="tab-content">
         <div class="panel-section" style="max-width: 500px; margin: 0 auto;">
-            <div class="panel-header">Р С‹РЅРѕС‡РЅС‹Рµ РєРѕС‚РёСЂРѕРІРєРё ISK / С€С‚</div>
+            <div class="panel-header">Рыночные котировки ISK / шт</div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label class="c-green">Р¦РµРЅР° Crawler (Р—РµР»РµРЅС‹Р№)</label>
+                    <label class="c-green">Цена Crawler (Зеленый)</label>
                     <input type="number" id="price-green" value="50000" oninput="updatePrices()">
                 </div>
                 <div class="form-group">
-                    <label class="c-blue">Р¦РµРЅР° Depth (РЎРёРЅРёР№)</label>
+                    <label class="c-blue">Цена Depth (Синий)</label>
                     <input type="number" id="price-blue" value="250000" oninput="updatePrices()">
                 </div>
                 <div class="form-group">
-                    <label class="c-purple">Р¦РµРЅР° Genesis (Р¤РёРѕР»РµС‚РѕРІС‹Р№)</label>
+                    <label class="c-purple">Цена Genesis (Фиолетовый)</label>
                     <input type="number" id="price-purple" value="1000000" oninput="updatePrices()">
                 </div>
                 <div class="form-group">
-                    <label class="c-orange">Р¦РµРЅР° Ascension (РћСЂР°РЅР¶РµРІС‹Р№)</label>
+                    <label class="c-orange">Цена Ascension (Оранжевый)</label>
                     <input type="number" id="price-orange" value="5000000" oninput="updatePrices()">
                 </div>
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="footer-legal">All Eve Echoes Related Materials are Property Of Netease Games</div>
+        <div class="footer-copyright">2026 &copy; <span class="footer-nickname">GeeFest</span></div>
+    </footer>
 
     <script>
         const activeImplants = [
@@ -875,13 +917,13 @@
             return "chip-orange";
         }
 
+        /* Горизонтальная карусель: Свайпы + Колёсико мыши */
         function initLiveScroll() {
             const slider = document.getElementById('implant-carousel');
             let isDown = false; let startX; let scrollLeft; let walk = 0;
 
             slider.addEventListener('pointerdown', (e) => {
                 isDown = true;
-                slider.classList.add('active');
                 startX = e.pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
                 walk = 0;
@@ -902,6 +944,16 @@
                 }
             });
 
+            // Поддержка колёсика мыши для горизонтальной ленты
+            slider.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                slider.scrollLeft += e.deltaY * 1.2;
+                
+                // Легкий таймаут для сглаженного выравнивания после остановки колеса
+                clearTimeout(slider.tsnap);
+                slider.tsnap = setTimeout(snapToNearest, 150);
+            }, { passive: false });
+
             function snapToNearest() {
                 const cartridges = slider.querySelectorAll('.implant-cartridge');
                 if (cartridges.length === 0) return;
@@ -912,6 +964,7 @@
             }
         }
 
+        /* Вертикальная лента кнопок: Свайпы + Колёсико мыши */
         function initVerticalProfileScroll() {
             const grid = document.getElementById('manage-buttons-container');
             let isDown = false; let startY; let scrollTop; let walk = 0;
@@ -937,6 +990,15 @@
                     grid.dataset.dragged = "true";
                 }
             });
+
+            // Поддержка колёсика мыши для вертикального контейнера кнопок
+            grid.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                grid.scrollTop += e.deltaY * 0.8;
+
+                clearTimeout(grid.tsnap);
+                grid.tsnap = setTimeout(snapVertical, 150);
+            }, { passive: false });
 
             function snapVertical() {
                 const itemHeight = 54 + 10;
@@ -998,7 +1060,7 @@
             const nextCost = cv < 45 ? expMatrix[cv] : 0;
             const currentStep = getExpStep(cv);
 
-            document.getElementById('label-current-exp').innerText = `РўРµРєСѓС‰РёР№ РѕРїС‹С‚ РЅР° ${cv} СѓСЂРѕРІРЅРµ (0 - ${nextCost.toLocaleString()})`;
+            document.getElementById('label-current-exp').innerText = `Текущий опыт на ${cv} уровне (0 - ${nextCost.toLocaleString()})`;
             expIn.max = nextCost;
             expIn.step = currentStep;
         }

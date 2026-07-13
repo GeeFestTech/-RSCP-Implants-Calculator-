@@ -930,7 +930,7 @@
             return "chip-orange";
         }
 
-        /* Горизонтальная карусель: Свайпы + Колёсико мыши */
+        /* Горизонтальная карусель: Свайпы + Плавное колёсико мыши */
         function initLiveScroll() {
             const slider = document.getElementById('implant-carousel');
             let isDown = false; let startX; let scrollLeft; let walk = 0;
@@ -957,11 +957,15 @@
                 }
             });
 
+            // Мягкая контролируемая прокрутка колёсиком
             slider.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                slider.scrollLeft += e.deltaY * 1.2;
+                // Ограничиваем шаг за одно прокручивание (знак deltaY определяет направление)
+                const step = 60 * Math.sign(e.deltaY);
+                slider.scrollBy({ left: step, behavior: 'auto' });
+                
                 clearTimeout(slider.tsnap);
-                slider.tsnap = setTimeout(snapToNearest, 150);
+                slider.tsnap = setTimeout(snapToNearest, 200);
             }, { passive: false });
 
             function snapToNearest() {
@@ -974,7 +978,7 @@
             }
         }
 
-        /* Вертикальная лента кнопок: Свайпы + Колёсико мыши */
+        /* Вертикальная лента кнопок: Свайпы + Плавное колёсико мыши */
         function initVerticalProfileScroll() {
             const grid = document.getElementById('manage-buttons-container');
             let isDown = false; let startY; let scrollTop; let walk = 0;
@@ -1001,11 +1005,14 @@
                 }
             });
 
+            // Мягкая контролируемая прокрутка колёсиком для вертикального меню
             grid.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                grid.scrollTop += e.deltaY * 0.8;
+                const step = 40 * Math.sign(e.deltaY);
+                grid.scrollBy({ top: step, behavior: 'auto' });
+
                 clearTimeout(grid.tsnap);
-                grid.tsnap = setTimeout(snapVertical, 150);
+                grid.tsnap = setTimeout(snapVertical, 200);
             }, { passive: false });
 
             function snapVertical() {
@@ -1015,7 +1022,7 @@
                 grid.scrollTo({ top: nearestIndex * itemHeight, behavior: 'smooth' });
             }
         }
-
+		
         function getExpStep(lvl) {
             if (lvl <= 10) return 100;
             if (lvl <= 25) return 500;
